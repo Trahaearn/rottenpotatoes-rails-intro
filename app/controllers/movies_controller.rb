@@ -12,8 +12,11 @@ class MoviesController < ApplicationController
 
   def index
     @sort_column = params[:sort_by]
+    @all_ratings = Movie.all_ratings.sort
     
-    @movies = Movie.order(params[:sort_by])
+    
+    @filter_ratings = (params[:ratings].keys if params.key?(:ratings)) || @all_ratings
+    @movies = Movie.order(params[:sort_by]).where(rating: @filter_ratings)
     
     if params[:sort_by] == 'title'
         session[:sort_by] = params[:sort_by]
@@ -21,8 +24,8 @@ class MoviesController < ApplicationController
     elsif params[:sort_by] == 'release_date'
         session[:sort_by] = params[:sort_by]
         @release_date_header = 'hilite'
-    else
-        @movies = Movie.all
+    elsif session.key?(:sort_by)
+        params[:sort_by] = 'ratings_form'
     end
   end
 
